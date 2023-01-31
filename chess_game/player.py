@@ -17,9 +17,7 @@ except ModuleNotFoundError:
     from .board import turn_side, eval_board_state, game_over, game_score, sorted_moves
     from .config import BOARD_SCORES, END_SCORES, PIECES
 
-log.basicConfig(level=log.INFO, 
-                    format='%(levelname)s - %(asctime)s - %(message)s',
-                    datefmt='%H:%M:%S') 
+
 
 
 class Player(ABC):
@@ -34,7 +32,7 @@ class Player(ABC):
 
 
 class MiniMaxPlayer(Player):
-    def __init__(self, player, depth=3, verbose=False):
+    def __init__(self, player, depth=5, verbose=False):
         super().__init__(player, "minimax")
         # TODO: problem for game func with accept classes - how to change depth
         self.depth = depth
@@ -61,8 +59,7 @@ class MiniMaxPlayer(Player):
 
                 score = self._minimax(test_board, not player, depth - 1, alpha, beta)
                 
-                if self.verbose:
-                    log.info(f"{turn_side(test_board)}, M{len(moves)}, D{depth}, {PIECES[piece]}:{move} - SCORE: {score}")
+                
 
                 alpha = max(alpha, score[0])
                 if beta <= alpha:
@@ -81,9 +78,6 @@ class MiniMaxPlayer(Player):
                 test_board.push(move)
 
                 score = self._minimax(test_board, player, depth - 1, alpha, beta)
-
-                if self.verbose:
-                    log.info(f"{turn_side(test_board)}, M{len(moves)}, D{depth}, {PIECES[piece]}:{move} - SCORE: {score}")
                 
                 beta = min(beta, score[0])
                 if beta <= alpha:

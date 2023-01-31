@@ -99,7 +99,6 @@ if __name__ == "__main__":
 
 
     print(sorted_moves(test_board))
-    # print(eval_board_state(test_board, True, BOARD_SCORES))
-    # print(game_score(test_board, True))
+   
 
 

@@ -1,12 +1,31 @@
 # This is a sample Python script.
-
+from chess import Board, Move 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+try:
+    from board import game_over, check_tie, check_win, eval_board_state
+    from config import BOARD_SCORES
+except ModuleNotFoundError:
+    from .board import game_over, check_tie, check_win, eval_board_state
+    from .config import BOARD_SCORES
+    
 
-
-def print_hi(name):
+def main(name):
     # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+    board = Board()
+    choice = True;
+    while(1):
+        if(choice):
+            print("Input Move")
+            move = input()
+            board.push(Move.from_uci(move))
+        else:
+
+        if game_over(board, claim_draw=True):
+            break
+
+
+
 
 
 # Press the green button in the gutter to run the script.
