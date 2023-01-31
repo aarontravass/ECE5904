@@ -4,7 +4,7 @@ from random import choice
 from math import inf
 from time import time
 from itertools import zip_longest
-
+from queue import Queue
 from chess import Board, Move
 # from copy import deepcopy
 
@@ -32,11 +32,13 @@ class Player(ABC):
 
 
 class MiniMaxPlayer(Player):
-    def __init__(self, player, depth=5, verbose=False):
+    def __init__(self, player, queue: Queue, id: int, depth=5,  verbose=False):
         super().__init__(player, "minimax")
         # TODO: problem for game func with accept classes - how to change depth
         self.depth = depth
         self.verbose = verbose
+        self.queue = queue
+        self.id = id
 
     def _minimax(self, board: Board, player: bool, depth: int, alpha: float=-inf, beta: float=inf) -> str:
         # base case
@@ -91,15 +93,11 @@ class MiniMaxPlayer(Player):
 
     def move(self, board: Board) -> str:
         best_move = self._minimax(board, self.player, self.depth)
-
-        return best_move[1].uci()
+        self.queue.put({ self.id:best_move[1].uci()})
+    
+    
 
 
 if __name__ == "__main__":
     test_board = Board()
-    test_bot = MiniMaxPlayer(player=True, verbose=False)
-
-    start_time = time()
-    print(test_bot._minimax(test_board, True, 5))
-    print(time() - start_time)
     

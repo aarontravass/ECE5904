@@ -1,3 +1,5 @@
+from threading import Thread
+from queue import Queue
 # This is a sample Python script.
 from chess import Board, Move 
 from chess_game.player import MiniMaxPlayer
@@ -12,18 +14,30 @@ def main(depth: int):
     # Use a breakpoint in the code line below to debug your script.
     board = Board()
     choice = True;
-    bot = MiniMaxPlayer(player=False, verbose=False)
+    
     while(1):
         print(board)
+        queue = Queue()
         if(choice):
             print("Input Move")
             move = input()
             board.push(Move.from_uci(move))
         else:
             print("Bot move")
-            best_move = bot._minimax(board, False, depth)
-            print(best_move[1].uci())
-            board.push(Move.from_uci(best_move[1].uci()))
+            bot1 = MiniMaxPlayer(False, queue, 1, 3)
+            bot2 = MiniMaxPlayer(False, queue, 1, 5)
+            t1 = Thread(target=bot1.move, args=(board))
+            t2 = Thread(target=bot2.move, args=(board))
+            t1.start()
+            t2.start()
+            t1.join()
+            t2.join()
+            val1 = queue.get()
+            val2 = queue.get()
+            print(val1)
+            print(val2)
+            best_move = val1[1]
+            board.push(Move.from_uci(best_move))
         choice = not choice
         if game_over(board, claim_draw=True):
             break
