@@ -2,9 +2,6 @@ import logging as log
 
 from random import choice
 from math import inf
-from time import time
-from itertools import zip_longest
-from multiprocessing import Queue
 from chess import Board, Move
 # from copy import deepcopy
 

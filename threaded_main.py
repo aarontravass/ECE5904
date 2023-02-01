@@ -1,5 +1,4 @@
-from multiprocessing import Pool, cpu_count
-from multiprocessing import Queue
+from multiprocessing import Pool
 # This is a sample Python script.
 from chess import Board, Move 
 from chess_game.player import MiniMaxPlayer
@@ -22,7 +21,7 @@ def main(depth: int):
             move = input()
             board.push(Move.from_uci(move))
         else:
-            pool = Pool(cpu_count())
+            pool = Pool(2)
             print("Bot move")
             bot1 = MiniMaxPlayer(False, 2)
             bot2 = MiniMaxPlayer(False, 4)
