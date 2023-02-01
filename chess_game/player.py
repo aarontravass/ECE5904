@@ -27,6 +27,37 @@ class Player(ABC):
         pass
 
 
+class HumanPlayer(Player):
+    def __init__(self, player: bool):
+        super().__init__(player, "human")
+
+    def _get_move(self, board: Board) -> str:
+        uci = input(f"({turn_side(board)}) Your turn! Choose move (in uci): ")
+
+        # check legal uci move
+        try:
+            Move.from_uci(uci)
+        except ValueError:
+            uci = None
+        return uci
+
+    def move(self, board: Board) -> str:
+
+        legal_moves = [move.uci() for move in board.legal_moves]
+
+        move = self._get_move(board)
+
+        while move is None:
+            print("Invalid uci move! Try again.", )
+            move = self._get_move(board)
+
+        while (move not in legal_moves):
+            print("Not a legal move! Avaliable moves:\n")
+            self._print_moves(legal_moves)
+            move = self._get_move(board)
+
+        return move
+
 
 class MiniMaxPlayer(Player):
     def __init__(self, player, depth,  verbose=False):

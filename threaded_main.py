@@ -1,7 +1,7 @@
 from multiprocessing import Pool
 # This is a sample Python script.
 from chess import Board, Move 
-from chess_game.player import MiniMaxPlayer
+from chess_game.player import MiniMaxPlayer, HumanPlayer
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from chess_game.board import game_over, check_tie, check_win, eval_board_state
@@ -18,7 +18,8 @@ def main(depth: int):
         print(board)
         if(choice):
             print("Input Move")
-            move = input()
+            h = HumanPlayer(False)
+            move = h.move(board)
             board.push(Move.from_uci(move))
         else:
             pool = Pool(2)
@@ -31,7 +32,6 @@ def main(depth: int):
             time1 = perf_counter()
             r2=pool.apply(bot2.move, args=(board,))
             print("Time for Depth 4 is ", perf_counter() - time1)
-
             print(r1)
             print(r2)
             best_move = r1

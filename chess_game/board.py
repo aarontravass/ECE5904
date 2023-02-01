@@ -10,7 +10,6 @@ try:
 except ModuleNotFoundError:
     from .config import BOARD_SCORES, END_SCORES
 
-
 NAME_TO_SQUARE = dict(zip(chess.SQUARE_NAMES, chess.SQUARES))
 
 
@@ -18,13 +17,14 @@ def square_name(move):
     return move.uci()[:2]
 
 
-def turn_side(board):
+def turn_side(board: Board):
     side = "White" if board.turn == True else "Black"
-    
+
     return side
 
+
 # TODO: wierd mutable defualt arg!! remove it to class
-def game_score(board, player, end_scores_policy=END_SCORES, board_scores_policy=BOARD_SCORES) -> float:
+def game_score(board: Board, player, end_scores_policy=END_SCORES, board_scores_policy=BOARD_SCORES) -> float:
     # TODO: add claim_draw -> mb slow
     score = None
 
@@ -40,7 +40,7 @@ def game_score(board, player, end_scores_policy=END_SCORES, board_scores_policy=
     return score
 
 
-def game_over(board: Board, claim_draw: bool=False) -> bool:
+def game_over(board: Board, claim_draw: bool = False) -> bool:
     if board.is_game_over(claim_draw=claim_draw):
         return True
 
@@ -54,10 +54,10 @@ def check_win(board: Board, player: bool) -> bool:
     return False
 
 
-def check_tie(board: Board, claim_draw: bool=False) -> bool:
+def check_tie(board: Board, claim_draw: bool = False) -> bool:
     tie = (board.is_stalemate() or
-            board.is_fivefold_repetition() or
-            board.is_insufficient_material())
+           board.is_fivefold_repetition() or
+           board.is_insufficient_material())
 
     if claim_draw:
         tie = tie or board.can_claim_draw()
@@ -69,7 +69,7 @@ def check_tie(board: Board, claim_draw: bool=False) -> bool:
 
 
 def eval_board_state(board, player: bool, board_scores_policy: dict) -> float:
-    total_score = random() 
+    total_score = random()
     # / 100
 
     for piece, score in board_scores_policy.items():
@@ -97,8 +97,4 @@ def sorted_moves(board: Board) -> List[str]:
 if __name__ == "__main__":
     test_board = chess.Board()
 
-
     print(sorted_moves(test_board))
-   
-
-
