@@ -4,7 +4,7 @@ from random import choice
 from math import inf
 from time import time
 from itertools import zip_longest
-from queue import Queue
+from multiprocessing import Queue
 from chess import Board, Move
 # from copy import deepcopy
 
@@ -32,13 +32,11 @@ class Player(ABC):
 
 
 class MiniMaxPlayer(Player):
-    def __init__(self, player, queue: Queue, id: int, depth=5,  verbose=False):
+    def __init__(self, player, depth,  verbose=False):
         super().__init__(player, "minimax")
         # TODO: problem for game func with accept classes - how to change depth
         self.depth = depth
         self.verbose = verbose
-        self.queue = queue
-        self.id = id
 
     def _minimax(self, board: Board, player: bool, depth: int, alpha: float=-inf, beta: float=inf) -> str:
         # base case
@@ -93,7 +91,7 @@ class MiniMaxPlayer(Player):
 
     def move(self, board: Board) -> str:
         best_move = self._minimax(board, self.player, self.depth)
-        self.queue.put({ self.id:best_move[1].uci()})
+        return best_move[1].uci()
     
     
 
