@@ -1,7 +1,7 @@
 import logging as log
 
 from random import choice
-from math import inf
+from math import inf, log, sqrt, e, inf
 from chess import Board, Move
 # from copy import deepcopy
 
@@ -15,10 +15,17 @@ except ModuleNotFoundError:
     from .config import BOARD_SCORES, END_SCORES, PIECES
 
 
+class Node():
+    def __init__(self) -> None:
+        self.children = set()
+        self.parent = None
+        self.N = 0
+        self.w_Score = 0
+        self.n = 0
 
 
 class Player(ABC):
-    def __init__(self, player: bool, solver: str=None):
+    def __init__(self, player: bool, solver: str):
         self.player = player
         self.solver = solver
 
@@ -31,7 +38,7 @@ class HumanPlayer(Player):
     def __init__(self, player: bool):
         super().__init__(player, "human")
 
-    def _get_move(self, board: Board) -> str:
+    def _get_move(self, board: Board) -> str | None:
         uci = input(f"({turn_side(board)}) Your turn! Choose move (in uci): ")
 
         # check legal uci move
@@ -53,11 +60,41 @@ class HumanPlayer(Player):
 
         while (move not in legal_moves):
             print("Not a legal move! Avaliable moves:\n")
-            self._print_moves(legal_moves)
             move = self._get_move(board)
 
         return move
 
+class MonteCarlo(Player):
+    def __init__(self, player, depth):
+        super().__init__(player, "mcts")
+        # TODO: problem for game func with accept classes - how to change depth
+        self.depth = depth
+        
+
+    def ucb(node: Node) -> float:       
+        ans = node.w_Score + 2*(sqrt(log(node.N+e+(10**-6))/(node.n+(10**-10))))
+        return ans
+
+    def selection(self, node: Node) -> Node:
+        max_ucb = -inf
+        selected_child = None
+        for child in node.children:
+            ucb_value = self.ucb(child)
+            if ucb_value < max_ucb:
+                max_ucb = ucb_value
+                selected_child = child
+        return selected_child
+    
+    def expand(self, node: Node) -> Node:
+        if node.children.empty():
+            return node
+        return self.expand(self.selection(node))
+
+    def 
+    
+
+
+    
 
 class MiniMaxPlayer(Player):
     def __init__(self, player, depth,  verbose=False):
@@ -66,7 +103,7 @@ class MiniMaxPlayer(Player):
         self.depth = depth
         self.verbose = verbose
 
-    def _minimax(self, board: Board, player: bool, depth: int, alpha: float=-inf, beta: float=inf) -> str:
+    def _minimax(self, board: Board, player: bool, depth: int, alpha: float=-inf, beta: float=inf) -> str | list[float | None]:
         # base case
         if depth == 0 or game_over(board):
             return [game_score(board, self.player, END_SCORES, BOARD_SCORES), None]
