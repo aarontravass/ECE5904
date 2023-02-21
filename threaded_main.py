@@ -47,6 +47,8 @@ def main(depth: int):
         result = int(check_win(board, True))
     print(result)
 
+def mcts_main() -> None:
+    
 
 if __name__ == '__main__':
     main(3)
