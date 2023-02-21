@@ -1,4 +1,5 @@
 
+from bisect import insort_left
 from chess import Board 
 
 from itertools import count
@@ -14,7 +15,7 @@ except ModuleNotFoundError:
 
 
 class Game:
-    def __init__(self, board: Board=None):
+    def __init__(self, board: Board):
         # for games with specific starting point
         if board:
             self.board = board
@@ -29,12 +30,11 @@ class Game:
         try:
             for i in count():
                 if visual:
-                    display(board)
+                   
 
                     white_score = eval_board_state(board, True, BOARD_SCORES)
                     black_score = eval_board_state(board, False, BOARD_SCORES)
-                    display(HTML(f'<div>WHITE: {white_p.solver}  SCORE: {white_score}</div>'))
-                    display(HTML(f'<div>BLACK: {black_p.solver} SCORE: {black_score}</div>'))
+                   
                     sleep(pause)
 
                 if game_over(board, claim_draw=True):
@@ -46,8 +46,7 @@ class Game:
                     move = black_p.move(board)
 
                 board.push_uci(move)
-                if visual:
-                    clear_output(wait=True)
+           
         except KeyboardInterrupt:
             print("Game stopped!")
             
@@ -56,16 +55,14 @@ class Game:
         else:
             result = int(check_win(board, True))
 
-        if visual:
-            display(HTML(f"<div>RESULT: {result}</div>"))
-
+       
         result_stat = {
             "white": white_p.solver, 
             "black": black_p.solver, 
             "FEN": board.fen(), 
             "last_move": board.peek(), 
             "moves_history": [move.uci() for move in board.move_stack],
-            "moves": i, "time": round(time() - start_time, 2),
+            "moves": 0, "time": round(time() - start_time, 2),
             "result": result
             }
             
