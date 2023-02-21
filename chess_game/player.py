@@ -17,6 +17,7 @@ except ModuleNotFoundError:
 
 class Node():
     def __init__(self) -> None:
+        self.board = Board()
         self.children = set()
         self.parent = None
         self.N = 0
@@ -90,7 +91,35 @@ class MonteCarlo(Player):
             return node
         return self.expand(self.selection(node))
 
-    def 
+    def rollout(node: Node):
+        if(node.board.game_over()):
+            if(node.board.result()=='1-0'):
+                return (1, node)
+            elif (node.board.result()=='0-1'):
+                return (-1, node)
+            else:
+                return (0.5, node)
+        
+        all_moves = [curr_node.state.san(i) for i in list(curr_node.state.legal_moves)]
+    
+        for i in all_moves:
+            tmp_state = chess.Board(curr_node.state.fen())
+            tmp_state.push_san(i)
+            child = Node()
+            child.state = tmp_state
+            child.parent = curr_node
+            node.children.add(child)
+        rnd_state = choice(list(curr_node.children))
+
+        return rollout(rnd_state)
+
+    def rollback(node: Node, reward):
+        node.n+=1
+        node.w_score+=reward
+        while(node.parent!=None):
+            node.N+=1
+            node = node.parent
+        return node
     
 
 
