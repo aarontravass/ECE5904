@@ -1,7 +1,7 @@
 import logging as log
 
 from random import choice
-from math import inf, log, sqrt, e, inf
+from math import inf, log, sqrt, e
 from chess import Board, Move
 # from copy import deepcopy
 
@@ -15,7 +15,7 @@ except ModuleNotFoundError:
     from .config import BOARD_SCORES, END_SCORES, PIECES
 
 
-class Node():
+class Node:
     def __init__(self) -> None:
         self.board = Board()
         self.children = set()
@@ -40,7 +40,7 @@ class HumanPlayer(Player):
         super().__init__(player, "human")
 
     def _get_move(self, board: Board) -> str | None:
-        uci = input(f"({turn_side(board)}) Your turn! Choose move (in uci): ")
+        uci = input(f"({turn_side(board)}) Choose move: ")
 
         # check legal uci move
         try:
@@ -66,10 +66,9 @@ class HumanPlayer(Player):
         return move
 
 class MonteCarlo(Player):
-    def __init__(self, player, depth):
+    def __init__(self, player):
         super().__init__(player, "mcts")
         # TODO: problem for game func with accept classes - how to change depth
-        self.depth = depth
         
 
     def ucb(node: Node) -> float:       
@@ -91,7 +90,7 @@ class MonteCarlo(Player):
             return node
         return self.expand(self.selection(node))
 
-    def rollout(node: Node):
+    def rollout(self, node: Node):
         if(node.board.game_over()):
             if(node.board.result()=='1-0'):
                 return (1, node)
@@ -100,30 +99,60 @@ class MonteCarlo(Player):
             else:
                 return (0.5, node)
         
-        all_moves = [curr_node.state.san(i) for i in list(curr_node.state.legal_moves)]
+        all_moves = [node.state.san(i) for i in list(node.state.legal_moves)]
     
         for i in all_moves:
-            tmp_state = chess.Board(curr_node.state.fen())
+            tmp_state = Board(node.state.fen())
             tmp_state.push_san(i)
             child = Node()
             child.state = tmp_state
-            child.parent = curr_node
+            child.parent = node
             node.children.add(child)
-        rnd_state = choice(list(curr_node.children))
+        rnd_state = choice(list(node.children))
 
-        return rollout(rnd_state)
+        return self.rollout(rnd_state)
 
-    def rollback(node: Node, reward):
+    def rollback(self, node: Node, reward):
         node.n+=1
         node.w_score+=reward
         while(node.parent!=None):
             node.N+=1
             node = node.parent
         return node
-    
 
+    def main(self, node: Node, iterations: int):
+        all_moves = [node.board.san(i) for i in list(node.board.legal_moves)]
+        map_state_move = dict()
 
-    
+        for i in all_moves:
+            tmp_state = Board(node.board.fen())
+            tmp_state.push_san(i)
+            child = node()
+            child.state = tmp_state
+            child.parent = node
+            node.children.add(child)
+            map_state_move[child] = i
+        while (iterations > 0):
+            max_ucb = -inf
+            sel_child = None
+            for i in curr_node.children:
+                tmp = self.ucb(i)
+                if (tmp > max_ucb):
+                    max_ucb = tmp
+                    sel_child = i
+            ex_child = self.expand(sel_child, 0)
+            reward, state = self.rollout(ex_child)
+            curr_node = self.rollback(state, reward)
+            iterations -= 1
+        mx = -inf
+        selected_move = ''
+        for i in (node.children):
+            tmp = self.ucb(i)
+            if (tmp > mx):
+                mx = tmp
+                selected_move = map_state_move[i]
+        return selected_move
+
 
 class MiniMaxPlayer(Player):
     def __init__(self, player, depth,  verbose=False):
