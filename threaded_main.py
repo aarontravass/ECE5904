@@ -1,7 +1,7 @@
 from multiprocessing import Pool
 # This is a sample Python script.
 from chess import Board, Move 
-from chess_game.player import MiniMaxPlayer, HumanPlayer
+from chess_game.player import MiniMaxPlayer, HumanPlayer, Node, MonteCarlo
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from chess_game.board import game_over, check_tie, check_win, eval_board_state
@@ -22,7 +22,7 @@ def main(depth: int):
             move = h.move(board)
             board.push(Move.from_uci(move))
         else:
-            pool = Pool(2)
+            pool = Pool(3)
             print("Bot move")
             bot1 = MiniMaxPlayer(False, 2)
             bot2 = MiniMaxPlayer(False, 4)
@@ -31,9 +31,11 @@ def main(depth: int):
             print("Time for Depth 2 is ", perf_counter() - time1)
             time1 = perf_counter()
             r2=pool.apply(bot2.move, args=(board,))
+            r3 = pool.apply(mcts_main, args=(board,))
             print("Time for Depth 4 is ", perf_counter() - time1)
             print(r1)
             print(r2)
+            print(r3)
             best_move = r1
             board.push(Move.from_uci(best_move))
             pool.close()
@@ -47,7 +49,14 @@ def main(depth: int):
         result = int(check_win(board, True))
     print(result)
 
-def mcts_main() -> None:
+def mcts_main(board: Board) -> None:
+    temp = board.copy()
+    root = Node()
+    root.board = temp
+    child = MonteCarlo()
+    ans = child.main(root, 10)
+    return ans
+
     
 
 if __name__ == '__main__':
