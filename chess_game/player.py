@@ -39,7 +39,7 @@ class HumanPlayer(Player):
     def __init__(self, player: bool):
         super().__init__(player, "human")
 
-    def _get_move(self, board: Board) -> str | None:
+    def _get_move(self, board: Board):
         uci = input(f"({turn_side(board)}) Choose move: ")
 
         # check legal uci move
@@ -161,7 +161,7 @@ class MiniMaxPlayer(Player):
         self.depth = depth
         self.verbose = verbose
 
-    def _minimax(self, board: Board, player: bool, depth: int, alpha: float=-inf, beta: float=inf) -> str | list[float | None]:
+    def _minimax(self, board: Board, player: bool, depth: int, alpha: float=-inf, beta: float=inf):
         # base case
         if depth == 0 or game_over(board):
             return [game_score(board, self.player, END_SCORES, BOARD_SCORES), None]

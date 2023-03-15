@@ -5,10 +5,8 @@ import src.database.handler as mongo
 from chess_game.board import game_over
 from chess_game.player import HumanPlayer, Node, MonteCarlo, MiniMaxPlayer
 from multiprocessing import Pool
-
 instanceDB = mongo.getDb().get_database('public')
 game = instanceDB['game']
-
 def init() -> dict:
     client_id = binascii.b2a_hex(os.urandom(15))
     board = Board()
@@ -71,8 +69,9 @@ def makeMove(client_id: str, move: str) -> dict:
     data = {
         'users_turn': False,
         'fen': str(board.fen()),
-        'client_id': client_id
     }
+    newvalues = {"$set": data}
+    game.update_one({'client_id': client_id}, newvalues)
     response = {
         'statusCode': 200,
         'status': True,
@@ -135,6 +134,57 @@ def callBotMove(client_id: str) -> dict:
         'message': None
     }
     return response
+
+def chooseBotMove(client_id: str, move: str) -> dict:
+    game_res = game.find_one({'client_id': client_id})
+    if game_res is None:
+        response = {
+            'statusCode': 404,
+            'status': False,
+            'data': None,
+            'message': 'Game not found'
+        }
+        return response
+    board = Board(game_res.get('fen'))
+    if game_res.get('users_turn'):
+        response = {
+            'statusCode': 401,
+            'status': False,
+            'data': None,
+            'message': 'It is not your turn'
+        }
+        return response
+    board.push(Move.from_uci(move))
+    if game_over(board, claim_draw=True):
+        response = {
+            'statusCode': 200,
+            'status': True,
+            'data': {
+                'game_over': True
+            },
+            'message': 'Game over'
+        }
+        return response
+    data = {
+        'users_turn': False,
+        'fen': str(board.fen()),
+    }
+    newvalues = {"$set": data}
+    game.update_one({'client_id': client_id}, newvalues)
+    response = {
+        'statusCode': 200,
+        'status': True,
+        'data': {
+            'game_over': False,
+            'users_turn': False,
+            'fen': str(board.fen()),
+            'client_id': client_id
+        },
+        'message': 'Game over'
+    }
+    return response
+
+
 
 def mcts_main(board: Board) -> None:
     temp = board.copy()

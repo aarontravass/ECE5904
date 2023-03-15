@@ -10,11 +10,49 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/', methods=['GET'])
+def init():
+    return "Hello World"
 
-@app.route("/v1/game/new")
+@app.route("/v1/game/new", methods = ['GET'])
 def init_game():
     res = game_util.init();
-    return Response(response=json.dumps(res), status=res.get('statusCode'), mimetype='application/json')
+    return Response(
+        response=json.dumps(res), 
+        status=res.get('statusCode'), 
+        mimetype='application/json'
+    )
+
+
+@app.route("/v1/game/player/move", methods = ['PUT'])
+def playermove():
+    body = request.json
+    res = game_util.makeMove(body.get('client_id'), body.get('move'));
+    return Response(
+        response=json.dumps(res), 
+        status=res.get('statusCode'), 
+        mimetype='application/json'
+    )
+
+@app.route("/v1/game/bot/moves/fetch", methods = ['POST'])
+def botmovefetch():
+    body = request.json
+    res = game_util.callBotMove(body.get('client_id'));
+    return Response(
+        response=json.dumps(res), 
+        status=res.get('statusCode'), 
+        mimetype='application/json'
+    )
+
+@app.route("/v1/game/bot/move", methods = ['PUT'])
+def botmove():
+    body = request.json
+    res = game_util.chooseBotMove(body.get('client_id'), body.get('move'));
+    return Response(
+        response=json.dumps(res), 
+        status=res.get('statusCode'), 
+        mimetype='application/json'
+    )
 
 
 if __name__ == "__main__":
