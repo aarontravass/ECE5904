@@ -9,7 +9,7 @@ from chess_game.config import BOARD_SCORES
 from time import perf_counter
 
 
-def main(depth: int):
+def main():
     # Use a breakpoint in the code line below to debug your script.
     board = Board()
     choice = True;
@@ -60,5 +60,5 @@ def mcts_main(board: Board) -> None:
     
 
 if __name__ == '__main__':
-    main(3)
+    main()
 
