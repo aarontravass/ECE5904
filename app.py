@@ -14,7 +14,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 def init():
     return "Hello World"
 
-@app.route("/v1/game/new", methods = ['GET'])
+@app.route("/api/v1/game/new", methods = ['GET'])
 def init_game():
     print("hello")
     res = game_util.init();
@@ -25,7 +25,7 @@ def init_game():
     )
 
 
-@app.route("/v1/game/player/move", methods = ['PUT'])
+@app.route("/api/v1/game/player/move", methods = ['PUT'])
 def playermove():
     body = request.json
     res = game_util.makeMove(body.get('client_id'), body.get('move'));
@@ -35,7 +35,7 @@ def playermove():
         mimetype='application/json'
     )
 
-@app.route("/v1/game/bot/moves/fetch", methods = ['POST'])
+@app.route("/api/v1/game/bot/moves/fetch", methods = ['POST'])
 def botmovefetch():
     body = request.json
     res = game_util.callBotMove(body.get('client_id'));
@@ -45,7 +45,7 @@ def botmovefetch():
         mimetype='application/json'
     )
 
-@app.route("/v1/game/bot/move", methods = ['PUT'])
+@app.route("/api/v1/game/bot/move", methods = ['PUT'])
 def botmove():
     body = request.json
     res = game_util.chooseBotMove(body.get('client_id'), body.get('move'));
