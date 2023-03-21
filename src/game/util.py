@@ -62,7 +62,7 @@ def makeMove(client_id: str, move: str) -> dict:
         }
         return response
     h = HumanPlayer(False)
-    move = h.move(board)
+    #move = h.move(board)
     board.push(Move.from_uci(move))
     if game_over(board, claim_draw=True):
         response = {
