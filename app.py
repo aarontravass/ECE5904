@@ -8,7 +8,7 @@ import src.game.util as game_util
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 @app.route('/', methods=['GET'])
 def init():
@@ -16,10 +16,11 @@ def init():
 
 @app.route("/v1/game/new", methods = ['GET'])
 def init_game():
+    print("hello")
     res = game_util.init();
     return Response(
         response=json.dumps(res), 
-        status=res.get('statusCode'), 
+        status=200, 
         mimetype='application/json'
     )
 
