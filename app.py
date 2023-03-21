@@ -20,7 +20,7 @@ def init_game():
     res = game_util.init();
     return Response(
         response=json.dumps(res), 
-        status=200, 
+        status=res.get('statusCode'), 
         mimetype='application/json'
     )
 

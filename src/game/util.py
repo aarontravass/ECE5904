@@ -6,22 +6,30 @@ from chess_game.board import game_over
 from chess_game.player import HumanPlayer, Node, MonteCarlo, MiniMaxPlayer
 from multiprocessing import Pool
 instanceDB = mongo.getDb().get_database('public')
-game = instanceDB['game']
+game = instanceDB.get_collection('game')
+
+
 def init() -> dict:
-    client_id = binascii.b2a_hex(os.urandom(15))
+    client_id = binascii.b2a_hex(os.urandom(15)).hex()
     board = Board()
     data = {
         'users_turn': True,
         'fen': str(board.fen()),
         'client_id': client_id
     }
-    game.insert(data)
+    game.insert_one(data)
     response = {
         'statusCode': 201,
         'status': True,
-        'data': data
+        'data': {
+            'users_turn': True,
+            'fen': str(board.fen()),
+            'client_id': client_id
+        }
     }
+    print(data)
     return response
+
 
 def makeMove(client_id: str, move: str) -> dict:
     game_res = game.find_one({'client_id': client_id})
@@ -85,6 +93,7 @@ def makeMove(client_id: str, move: str) -> dict:
     }
     return response
 
+
 def callBotMove(client_id: str) -> dict:
     game_res = game.find_one({'client_id': client_id})
     if game_res is None:
@@ -135,6 +144,7 @@ def callBotMove(client_id: str) -> dict:
     }
     return response
 
+
 def chooseBotMove(client_id: str, move: str) -> dict:
     game_res = game.find_one({'client_id': client_id})
     if game_res is None:
@@ -183,7 +193,6 @@ def chooseBotMove(client_id: str, move: str) -> dict:
         'message': 'Game over'
     }
     return response
-
 
 
 def mcts_main(board: Board) -> None:
