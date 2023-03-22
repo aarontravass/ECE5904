@@ -120,7 +120,7 @@ def callBotMove(client_id: str) -> dict:
     pool = Pool(3)
     print("Bot move")
     bot1 = MiniMaxPlayer(False, 2)
-    bot2 = MiniMaxPlayer(False, 2)
+    bot2 = MiniMaxPlayer(False, 4)
     r1 = pool.apply(bot1.move, args=(board,))
     r2 = pool.apply(bot2.move, args=(board,))
     r3 = pool.apply(mcts_main, args=(board,))
@@ -130,18 +130,21 @@ def callBotMove(client_id: str) -> dict:
         'data': {
             0: {
                 'player_name': 'Minimax',
-                'move_gen': r1,
-                'depth': 2
+                'move_gen': r1[0],
+                'depth': 2,
+                'time': round(r1[1], 2)
             },
             1: {
                 'player_name': 'Minimax',
-                'move_gen': r2,
-                'depth': 4
+                'move_gen': r2[0],
+                'depth': 4,
+                'time': round(r2[1], 2)
             },
             2: {
                 'player_name': 'Monte Carlo Tree Search',
-                'move_gen': r3,
-                'depth': None
+                'move_gen': r3[0],
+                'depth': None,
+                'time': round(r3[1], 2)
             }
         },
         'message': None
@@ -180,7 +183,7 @@ def chooseBotMove(client_id: str, move: str) -> dict:
         }
         return response
     data = {
-        'users_turn': False,
+        'users_turn': True,
         'fen': str(board.fen()),
     }
     newvalues = {"$set": data}

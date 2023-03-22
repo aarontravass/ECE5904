@@ -4,7 +4,7 @@ from random import choice
 from math import inf, log, sqrt, e
 from chess import Board, Move
 # from copy import deepcopy
-
+from time import perf_counter
 from abc import ABC, abstractmethod
 
 sys.setrecursionlimit(15000)
@@ -133,6 +133,7 @@ class MonteCarlo:
         return node
 
     def main(self, node: Node, iterations: int):
+        t1 = perf_counter()
         original_board = node.board.copy()
         all_moves = [node.board.san(i) for i in list(node.board.legal_moves)]
         map_state_move = dict()
@@ -164,7 +165,7 @@ class MonteCarlo:
             if (tmp < mn):
                 mn = tmp
                 selected_move = map_state_move[i]
-        return original_board.parse_san(selected_move).uci()
+        return (original_board.parse_san(selected_move).uci(), perf_counter() - t1)
 
 
 class MiniMaxPlayer(Player):
@@ -218,11 +219,12 @@ class MiniMaxPlayer(Player):
 
             return [minScore, bestMove]
 
-    def move(self, board: Board) -> str:
+    def move(self, board: Board):
+        t1 = perf_counter()
         copy_board = board.copy()
         best_move = self._minimax(copy_board, self.player, self.depth)
         print(best_move)
-        return best_move[1].uci()
+        return (best_move[1].uci(), perf_counter()-t1)
 
 
 if __name__ == "__main__":
