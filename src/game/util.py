@@ -1,6 +1,6 @@
 import binascii
 import os
-from chess import Board, Move
+from chess import Board, Move, BLACK
 import src.database.handler as mongo
 from chess_game.board import game_over
 from chess_game.player import HumanPlayer, Node, MonteCarlo, MiniMaxPlayer
@@ -12,6 +12,7 @@ game = instanceDB.get_collection('game')
 def init() -> dict:
     client_id = binascii.b2a_hex(os.urandom(15)).hex()
     board = Board()
+    board.turn = BLACK
     data = {
         'users_turn': True,
         'fen': str(board.fen()),
@@ -63,7 +64,9 @@ def makeMove(client_id: str, move: str) -> dict:
         return response
     h = HumanPlayer(False)
     #move = h.move(board)
+    print(board.move_stack)
     board.push(Move.from_uci(move))
+    print(board.move_stack)
     if game_over(board, claim_draw=True):
         response = {
             'statusCode': 200,
@@ -104,6 +107,7 @@ def callBotMove(client_id: str) -> dict:
             'message': 'Game not found'
         }
         return response
+    print(game_res.get('fen'))
     board = Board(game_res.get('fen'))
     if game_res.get('users_turn'):
         response = {
@@ -116,7 +120,7 @@ def callBotMove(client_id: str) -> dict:
     pool = Pool(3)
     print("Bot move")
     bot1 = MiniMaxPlayer(False, 2)
-    bot2 = MiniMaxPlayer(False, 4)
+    bot2 = MiniMaxPlayer(False, 2)
     r1 = pool.apply(bot1.move, args=(board,))
     r2 = pool.apply(bot2.move, args=(board,))
     r3 = pool.apply(mcts_main, args=(board,))
@@ -200,5 +204,5 @@ def mcts_main(board: Board) -> None:
     root = Node()
     root.board = temp
     child = MonteCarlo()
-    ans = child.main(root, 10)
+    ans = child.main(root, 5)
     return ans

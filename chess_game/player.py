@@ -1,5 +1,5 @@
 import logging as log
-
+import sys
 from random import choice
 from math import inf, log, sqrt, e
 from chess import Board, Move
@@ -7,6 +7,7 @@ from chess import Board, Move
 
 from abc import ABC, abstractmethod
 
+sys.setrecursionlimit(15000)
 try:
     from board import turn_side, eval_board_state, game_over, game_score, sorted_moves
     from config import BOARD_SCORES, END_SCORES, PIECES
@@ -65,111 +66,118 @@ class HumanPlayer(Player):
 
         return move
 
-class MonteCarlo(Player):
-    def __init__(self, player):
-        super().__init__(player, "mcts")
-        # TODO: problem for game func with accept classes - how to change depth
-        
 
-    def ucb(node: Node) -> float:       
-        ans = node.w_Score + 2*(sqrt(log(node.N+e+(10**-6))/(node.n+(10**-10))))
+class MonteCarlo:
+    def __init__(self):
+        return
+
+    def ucb(self, node: Node) -> float:
+        ans = node.w_Score + 2 * (sqrt(log(node.N + e + (10 ** -6)) / (node.n + (10 ** -10))))
         return ans
 
-    def selection(self, node: Node) -> Node:
-        max_ucb = -inf
-        selected_child = None
-        for child in node.children:
-            ucb_value = self.ucb(child)
-            if ucb_value < max_ucb:
-                max_ucb = ucb_value
-                selected_child = child
-        return selected_child
-    
-    def expand(self, node: Node) -> Node:
-        if node.children.empty():
+
+
+
+    def expand(self, node: Node, white: int) -> Node:
+        if len(node.children) == 0:
             return node
-        return self.expand(self.selection(node))
+        max_ucb = -inf
+        if(white):
+            selected_child = None
+            for child in node.children:
+                ucb_value = self.ucb(child)
+                if ucb_value > max_ucb:
+                    max_ucb = ucb_value
+                    selected_child = child
+            return self.expand(selected_child, 0)
+        else:
+            min_ucb = inf
+            selected_child = None
+            for child in node.children:
+                ucb_value = self.ucb(child)
+                if ucb_value < min_ucb:
+                    min_ucb = ucb_value
+                    selected_child = child
+            return self.expand(selected_child, 1)
+
 
     def rollout(self, node: Node):
-        if(node.board.game_over()):
-            if(node.board.result()=='1-0'):
+        if node.board.is_game_over():
+            if node.board.result() == '1-0':
                 return (1, node)
-            elif (node.board.result()=='0-1'):
+            elif node.board.result() == '0-1':
                 return (-1, node)
             else:
                 return (0.5, node)
-        
-        all_moves = [node.state.san(i) for i in list(node.state.legal_moves)]
-    
+
+        all_moves = [node.board.san(i) for i in list(node.board.legal_moves)]
+
         for i in all_moves:
-            tmp_state = Board(node.state.fen())
+            tmp_state = Board(node.board.fen())
             tmp_state.push_san(i)
             child = Node()
-            child.state = tmp_state
+            child.board = tmp_state
             child.parent = node
             node.children.add(child)
+        # print(node.children)
         rnd_state = choice(list(node.children))
 
         return self.rollout(rnd_state)
 
     def rollback(self, node: Node, reward):
-        node.n+=1
-        node.w_score+=reward
-        while(node.parent!=None):
-            node.N+=1
+        node.n += 1
+        node.w_Score += reward
+        while (node.parent != None):
+            node.N += 1
             node = node.parent
         return node
 
     def main(self, node: Node, iterations: int):
+        original_board = node.board.copy()
         all_moves = [node.board.san(i) for i in list(node.board.legal_moves)]
         map_state_move = dict()
 
         for i in all_moves:
             tmp_state = Board(node.board.fen())
             tmp_state.push_san(i)
-            child = node()
-            child.state = tmp_state
+            child = Node()
+            child.board = tmp_state
             child.parent = node
             node.children.add(child)
             map_state_move[child] = i
         while (iterations > 0):
-            max_ucb = -inf
+            min_ucb = inf
             sel_child = None
-            for i in curr_node.children:
+            for i in node.children:
                 tmp = self.ucb(i)
-                if (tmp > max_ucb):
-                    max_ucb = tmp
+                if (tmp < min_ucb):
+                    min_ucb = tmp
                     sel_child = i
-            ex_child = self.expand(sel_child, 0)
+            ex_child = self.expand(sel_child, 1)
             reward, state = self.rollout(ex_child)
-            curr_node = self.rollback(state, reward)
+            node = self.rollback(state, reward)
             iterations -= 1
-        mx = -inf
+        mn = inf
         selected_move = ''
         for i in (node.children):
             tmp = self.ucb(i)
-            if (tmp > mx):
-                mx = tmp
+            if (tmp < mn):
+                mn = tmp
                 selected_move = map_state_move[i]
-        return selected_move
+        return original_board.parse_san(selected_move).uci()
 
 
 class MiniMaxPlayer(Player):
-    def __init__(self, player, depth,  verbose=False):
+    def __init__(self, player, depth, verbose=False):
         super().__init__(player, "minimax")
         # TODO: problem for game func with accept classes - how to change depth
         self.depth = depth
         self.verbose = verbose
 
-    def _minimax(self, board: Board, player: bool, depth: int, alpha: float=-inf, beta: float=inf):
+    def _minimax(self, board: Board, player: bool, depth: int, alpha: float = -inf, beta: float = inf):
         # base case
         if depth == 0 or game_over(board):
             return [game_score(board, self.player, END_SCORES, BOARD_SCORES), None]
-
-        # first move for white
-        if len(board.move_stack) == 0:
-            white_opening = choice(("e2e4", "d2d4", "c2c4", "g1f3"))
-            return white_opening
 
         moves = sorted_moves(board)
 
@@ -181,8 +189,6 @@ class MiniMaxPlayer(Player):
                 test_board.push(move)
 
                 score = self._minimax(test_board, not player, depth - 1, alpha, beta)
-                
-                
 
                 alpha = max(alpha, score[0])
                 if beta <= alpha:
@@ -201,7 +207,7 @@ class MiniMaxPlayer(Player):
                 test_board.push(move)
 
                 score = self._minimax(test_board, player, depth - 1, alpha, beta)
-                
+
                 beta = min(beta, score[0])
                 if beta <= alpha:
                     break
@@ -213,12 +219,11 @@ class MiniMaxPlayer(Player):
             return [minScore, bestMove]
 
     def move(self, board: Board) -> str:
-        best_move = self._minimax(board, self.player, self.depth)
+        copy_board = board.copy()
+        best_move = self._minimax(copy_board, self.player, self.depth)
+        print(best_move)
         return best_move[1].uci()
-    
-    
 
 
 if __name__ == "__main__":
     test_board = Board()
-    
