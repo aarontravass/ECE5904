@@ -17,7 +17,8 @@ def init():
 @app.route("/api/v1/game/new", methods = ['GET'])
 def init_game():
     print("hello")
-    res = game_util.init();
+    random_time = request.args.get('random_time', None)
+    res = game_util.init(random_time);
     return Response(
         response=json.dumps(res), 
         status=res.get('statusCode'), 

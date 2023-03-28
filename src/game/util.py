@@ -1,22 +1,27 @@
 import binascii
 import os
+import random
+
 from chess import Board, Move, BLACK
 import src.database.handler as mongo
 from chess_game.board import game_over
 from chess_game.player import HumanPlayer, Node, MonteCarlo, MiniMaxPlayer
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 instanceDB = mongo.getDb().get_database('public')
 game = instanceDB.get_collection('game')
 
 
-def init() -> dict:
+def init(random_time: bool) -> dict:
+    if random_time is None:
+        random_time = False
     client_id = binascii.b2a_hex(os.urandom(15)).hex()
     board = Board()
     board.turn = BLACK
     data = {
         'users_turn': True,
         'fen': str(board.fen()),
-        'client_id': client_id
+        'client_id': client_id,
+        "random_time": random_time
     }
     game.insert_one(data)
     response = {
@@ -109,6 +114,7 @@ def callBotMove(client_id: str) -> dict:
         return response
     print(game_res.get('fen'))
     board = Board(game_res.get('fen'))
+    random_time = game_res.get('random_time')
     if game_res.get('users_turn'):
         response = {
             'statusCode': 401,
@@ -117,13 +123,14 @@ def callBotMove(client_id: str) -> dict:
             'message': 'It is not your turn'
         }
         return response
-    pool = Pool(3)
+    pool = Pool(min(3, cpu_count()))
+    cut_of_time = random.randint(0, 30) if random_time else -1
     print("Bot move")
     bot1 = MiniMaxPlayer(False, 2)
     bot2 = MiniMaxPlayer(False, 4)
-    r1 = pool.apply(bot1.move, args=(board,))
-    r2 = pool.apply(bot2.move, args=(board,))
-    r3 = pool.apply(mcts_main, args=(board,))
+    r1 = pool.apply(bot1.move, args=(board, cut_of_time, ))
+    r2 = pool.apply(bot2.move, args=(board, cut_of_time, ))
+    r3 = pool.apply(mcts_main, args=(board, cut_of_time, ))
     response = {
         'statusCode': 200,
         'status': True,
@@ -149,6 +156,7 @@ def callBotMove(client_id: str) -> dict:
         },
         'message': None
     }
+    pool.close()
     return response
 
 
@@ -202,10 +210,10 @@ def chooseBotMove(client_id: str, move: str) -> dict:
     return response
 
 
-def mcts_main(board: Board) -> None:
+def mcts_main(board: Board, cut_of_time: int | None) -> None:
     temp = board.copy()
     root = Node()
     root.board = temp
     child = MonteCarlo()
-    ans = child.main(root, 5)
+    ans = child.main(root, 5, cut_of_time)
     return ans
