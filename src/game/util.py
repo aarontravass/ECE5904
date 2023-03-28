@@ -131,28 +131,48 @@ def callBotMove(client_id: str) -> dict:
     r1 = pool.apply(bot1.move, args=(board, cut_of_time, ))
     r2 = pool.apply(bot2.move, args=(board, cut_of_time, ))
     r3 = pool.apply(mcts_main, args=(board, cut_of_time, ))
-    response = {
-        'statusCode': 200,
-        'status': True,
-        'data': {
-            0: {
+
+    moves = []
+    if(r1[0] is not None):
+        moves.append(
+            {
                 'player_name': 'Minimax',
                 'move_gen': r1[0],
                 'depth': 2,
                 'time': round(r1[1], 2)
-            },
-            1: {
-                'player_name': 'Minimax',
-                'move_gen': r2[0],
-                'depth': 4,
-                'time': round(r2[1], 2)
-            },
-            2: {
+            }
+        )
+    
+    if(r3[0] is not None):
+        moves.append(
+            {
                 'player_name': 'Monte Carlo Tree Search',
                 'move_gen': r3[0],
                 'depth': None,
                 'time': round(r3[1], 2)
             }
+        )
+
+    if(r2[0] is not None):
+        moves.append(
+            {
+                'player_name': 'Minimax',
+                'move_gen': r2[0],
+                'depth': 4,
+                'time': round(r2[1], 2)
+            }
+        )
+
+    if(cut_of_time == -1):
+        moves = [moves.pop()]
+    
+
+    response = {
+        'statusCode': 200,
+        'status': True,
+        'data': {
+            "moves": moves,
+            "cut_off_time": cut_of_time
         },
         'message': None
     }

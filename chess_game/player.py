@@ -132,7 +132,7 @@ class MonteCarlo:
             node = node.parent
         return node
 
-    def main(self, node: Node, iterations: int):
+    def main(self, node: Node, cut_of_time: int, iterations: int):
         t1 = perf_counter()
         original_board = node.board.copy()
         all_moves = [node.board.san(i) for i in list(node.board.legal_moves)]
@@ -147,6 +147,8 @@ class MonteCarlo:
             node.children.add(child)
             map_state_move[child] = i
         while (iterations > 0):
+            if(perf_counter() - t1 > cut_of_time and cut_of_time !=-1):
+                return (None, None)
             min_ucb = inf
             sel_child = None
             for i in node.children:
@@ -175,8 +177,12 @@ class MiniMaxPlayer(Player):
         self.depth = depth
         self.verbose = verbose
 
-    def _minimax(self, board: Board, player: bool, depth: int, alpha: float = -inf, beta: float = inf):
+    def _minimax(self, board: Board, player: bool, depth: int, t1: float, cut_of_time: int, alpha: float = -inf, beta: float = inf):
         # base case
+        diff = perf_counter() - t1
+        if(diff>cut_of_time and cut_of_time!=-1):
+            return []
+
         if depth == 0 or game_over(board):
             return [game_score(board, self.player, END_SCORES, BOARD_SCORES), None]
 
@@ -189,8 +195,9 @@ class MiniMaxPlayer(Player):
                 test_board = board.copy()
                 test_board.push(move)
 
-                score = self._minimax(test_board, not player, depth - 1, alpha, beta)
-
+                score = self._minimax(test_board, not player, depth - 1, t1, cut_of_time, alpha, beta)
+                if len(score) == 0:
+                    return score
                 alpha = max(alpha, score[0])
                 if beta <= alpha:
                     break
@@ -207,8 +214,9 @@ class MiniMaxPlayer(Player):
                 test_board = board.copy()
                 test_board.push(move)
 
-                score = self._minimax(test_board, player, depth - 1, alpha, beta)
-
+                score = self._minimax(test_board, player, depth - 1, t1, cut_of_time, alpha, beta)
+                if len(score) == 0:
+                    return score
                 beta = min(beta, score[0])
                 if beta <= alpha:
                     break
@@ -219,12 +227,14 @@ class MiniMaxPlayer(Player):
 
             return [minScore, bestMove]
 
-    def move(self, board: Board):
+    def move(self, board: Board, cut_of_time: int):
         t1 = perf_counter()
         copy_board = board.copy()
-        best_move = self._minimax(copy_board, self.player, self.depth)
+        best_move = self._minimax(copy_board, self.player, self.depth, t1, cut_of_time)
+        if(best_move == []):
+            return (None, None)
         print(best_move)
-        return (best_move[1].uci(), perf_counter()-t1)
+        return (best_move[1].uci(), perf_counter() - t1)
 
 
 if __name__ == "__main__":
