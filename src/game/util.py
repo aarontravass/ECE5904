@@ -163,7 +163,7 @@ def callBotMove(client_id: str) -> dict:
             }
         )
 
-    if(cut_of_time == -1):
+    if(random_time):
         moves = [moves.pop()]
     
 
@@ -230,10 +230,10 @@ def chooseBotMove(client_id: str, move: str) -> dict:
     return response
 
 
-def mcts_main(board: Board, cut_of_time: int | None) -> None:
+def mcts_main(board: Board, cut_of_time: int) -> None:
     temp = board.copy()
     root = Node()
     root.board = temp
     child = MonteCarlo()
-    ans = child.main(root, 5, cut_of_time)
+    ans = child.main(root, cut_of_time, 5)
     return ans

@@ -167,6 +167,7 @@ class MonteCarlo:
             if (tmp < mn):
                 mn = tmp
                 selected_move = map_state_move[i]
+        print("MCTS", selected_move, perf_counter() - t1)
         return (original_board.parse_san(selected_move).uci(), perf_counter() - t1)
 
 
