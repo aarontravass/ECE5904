@@ -129,7 +129,7 @@ def callBotMove(client_id: str) -> dict:
         }
         return response
     pool = Pool(min(3, cpu_count()))
-    cut_of_time = random.randint(0, 30) if random_time else -1
+    cut_of_time = random.randint(0, 60) if random_time else -1
     print("Bot move")
     bot1 = MiniMaxPlayer(False, 2)
     bot2 = MiniMaxPlayer(False, 4)
