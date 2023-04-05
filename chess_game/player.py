@@ -4,7 +4,7 @@ from random import choice
 from math import inf, log, sqrt, e
 from chess import Board, Move
 # from copy import deepcopy
-from time import perf_counter
+from time import time
 from abc import ABC, abstractmethod
 
 sys.setrecursionlimit(15000)
@@ -133,7 +133,7 @@ class MonteCarlo:
         return node
 
     def main(self, node: Node, cut_of_time: int, iterations: int):
-        t1 = perf_counter()
+        t1 = time()
         original_board = node.board.copy()
         all_moves = [node.board.san(i) for i in list(node.board.legal_moves)]
         map_state_move = dict()
@@ -147,7 +147,7 @@ class MonteCarlo:
             node.children.add(child)
             map_state_move[child] = i
         while (iterations > 0):
-            if(perf_counter() - t1 > cut_of_time and cut_of_time !=-1):
+            if(time() - t1 > cut_of_time and cut_of_time !=-1):
                 return (None, None)
             min_ucb = inf
             sel_child = None
@@ -167,8 +167,8 @@ class MonteCarlo:
             if (tmp < mn):
                 mn = tmp
                 selected_move = map_state_move[i]
-        print("MCTS", selected_move, perf_counter() - t1)
-        return (original_board.parse_san(selected_move).uci(), perf_counter() - t1)
+        print("MCTS", selected_move, time() - t1)
+        return (original_board.parse_san(selected_move).uci(), time() - t1)
 
 
 class MiniMaxPlayer(Player):
@@ -180,7 +180,7 @@ class MiniMaxPlayer(Player):
 
     def _minimax(self, board: Board, player: bool, depth: int, t1: float, cut_of_time: int, alpha: float = -inf, beta: float = inf):
         # base case
-        diff = perf_counter() - t1
+        diff = time() - t1
         if(diff>cut_of_time and cut_of_time!=-1):
             return []
 
@@ -229,13 +229,13 @@ class MiniMaxPlayer(Player):
             return [minScore, bestMove]
 
     def move(self, board: Board, cut_of_time: int):
-        t1 = perf_counter()
+        t1 = time()
         copy_board = board.copy()
         best_move = self._minimax(copy_board, self.player, self.depth, t1, cut_of_time)
         if(best_move == []):
             return (None, None)
         print(best_move)
-        return (best_move[1].uci(), perf_counter() - t1)
+        return (best_move[1].uci(), time() - t1)
 
 
 if __name__ == "__main__":
