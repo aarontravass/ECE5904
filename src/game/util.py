@@ -230,7 +230,7 @@ def chooseBotMove(client_id: str, move: str) -> dict:
     return response
 
 
-def mcts_main(board: Board, cut_of_time: int | None) -> None:
+def mcts_main(board: Board, cut_of_time: int) -> None:
     temp = board.copy()
     root = Node()
     root.board = temp
