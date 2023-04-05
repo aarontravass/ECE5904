@@ -12,7 +12,9 @@ game = instanceDB.get_collection('game')
 
 
 def init(random_time: bool) -> dict:
-    if random_time is None or str(random_time).lower() == 'false':
+    if random_time is None:
+        random_time = False
+    if str(random_time).lower() == 'false':
         random_time = False
     else:
         random_time = True
