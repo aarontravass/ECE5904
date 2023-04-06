@@ -3,7 +3,6 @@ import sys
 from random import choice
 from math import inf, log, sqrt, e
 from chess import Board, Move
-# from copy import deepcopy
 from time import time
 from abc import ABC, abstractmethod
 sys.setrecursionlimit(15000)
