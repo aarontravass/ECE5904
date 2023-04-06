@@ -13,7 +13,7 @@ m2_avg=0
 mcts_avg=0
 m2=0
 mcts=0
-random_time = False
+random_time = True
 def main():
     # Use a breakpoint in the code line below to debug your script.
     board = Board()
@@ -36,9 +36,9 @@ def main():
             counter+=1
             pool = Pool(3)
             #print("Bot move")
-            cut_of_time = randint(0, 30) if random_time else -1
+            cut_of_time = randint(1, 20) if random_time else -1
             bot1 = MiniMaxPlayer(False, 2)
-            bot2 = MiniMaxPlayer(False, 4)
+            #bot2 = MiniMaxPlayer(False, 4)
             r1=pool.apply(bot1.move, args=(board, cut_of_time))
             #r2=pool.apply(bot2.move, args=(board, cut_of_time))
             r3 = pool.apply(mcts_main, args=(board, cut_of_time))
@@ -57,26 +57,25 @@ def main():
 
             best_move = moves
             
-            print("m2 mcts m4")
+            #print("m2 mcts m4")
             if not random_time:
                 m2+=moves[0][1]
                 mcts+= moves[1][1]
             else:
                 print(cut_of_time, best_move[0][0], best_move[0][1])
-            board.push(Move.from_uci(best_move[1][0]))
+            board.push(Move.from_uci(best_move.pop()[0]))
             pool.close()
-        choice = not choice
         if game_over(board, claim_draw=True):
             break
-
+        choice = not choice
     if check_tie(board, claim_draw=True):
         result = -1
     else:
-        result = int(check_win(board, True))
+        result = int(check_win(board, choice))
     print(result)
     m2/=float(counter)
     mcts/=float(counter)
-    print(m2, mcts)
+    #print(m2, mcts)
     m2_avg += m2
     mcts_avg += mcts
 
@@ -93,8 +92,8 @@ def mcts_main(board: Board, cut_of_time: int) -> None:
 if __name__ == '__main__':
     itr = 10
     for i in range(itr):
-        print("starting itr ", i+1)
+        #print("starting itr ", i+1)
         main()
-        print("completed itr ", i+1)
-    print(m2_avg/float(itr), mcts_avg/float(itr))
+        #print("completed itr ", i+1)
+    
 

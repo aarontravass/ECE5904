@@ -62,14 +62,15 @@ def main():
                 print(cut_of_time, best_move[0][0], best_move[0][1])
             board.push(Move.from_uci(best_move[1][0]))
             pool.close()
-        choice = not choice
+        
         if game_over(board, claim_draw=True):
             break
+        choice = not choice
 
     if check_tie(board, claim_draw=True):
         result = -1
     else:
-        result = int(check_win(board, True))
+        result = int(check_win(board, choice))
     print(result)
 
 def mcts_main(board: Board, cut_of_time: int) -> None:
