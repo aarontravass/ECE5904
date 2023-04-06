@@ -11,6 +11,7 @@ from random import randint, choice as choicefn
 
 m2=0
 mcts=0
+m4=0
 random_time = False
 def main():
     # Use a breakpoint in the code line below to debug your script.
@@ -41,8 +42,8 @@ def main():
             if (r1[0] is not None):
                 moves.append((r1[0], round(r1[1], 2)))
 
-            # if (r3[0] is not None):
-            #     moves.append((r3[0], round(r3[1], 2)))
+            if (r3[0] is not None):
+                moves.append((r3[0], round(r3[1], 2)))
 
             if (r2[0] is not None):
                 moves.append((r2[0], round(r2[1], 2)))
@@ -56,6 +57,7 @@ def main():
             if not random_time:
                 m2+=moves[0][1]
                 mcts+= moves[1][1]
+                m4+=moves[2][1]
             else:
                 print(cut_of_time, best_move[0][0], best_move[0][1])
             board.push(Move.from_uci(best_move[1][0]))
@@ -86,5 +88,5 @@ if __name__ == '__main__':
         print("starting itr ", i+1)
         main()
         print("completed itr ", i+1)
-    print(m2/float(itr), mcts/float(itr))
+    print(m2/float(itr), mcts/float(itr), m4/float(itr))
 
