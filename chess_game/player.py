@@ -3,11 +3,8 @@ import sys
 from random import choice
 from math import inf, log, sqrt, e
 from chess import Board, Move
-# from copy import deepcopy
 from time import time
 from abc import ABC, abstractmethod
-import os
-import psutil
 sys.setrecursionlimit(15000)
 try:
     from board import turn_side, eval_board_state, game_over, game_score, sorted_moves
