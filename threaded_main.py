@@ -9,6 +9,7 @@ from chess_game.config import BOARD_SCORES
 from time import perf_counter
 from random import randint, choice as choicefn
 
+
 random_time = False
 def main():
     # Use a breakpoint in the code line below to debug your script.
@@ -31,9 +32,9 @@ def main():
             #print("Bot move")
             cut_of_time = randint(0, 30) if random_time else -1
             bot1 = MiniMaxPlayer(False, 2)
-            bot2 = MiniMaxPlayer(False, 4)
+            #bot2 = MiniMaxPlayer(False, 4)
             r1=pool.apply(bot1.move, args=(board, cut_of_time))
-            r2=pool.apply(bot2.move, args=(board, cut_of_time))
+            #r2=pool.apply(bot2.move, args=(board, cut_of_time))
             r3 = pool.apply(mcts_main, args=(board, cut_of_time))
             moves = []
             if (r1[0] is not None):
@@ -42,16 +43,15 @@ def main():
             if (r3[0] is not None):
                 moves.append((r3[0], round(r3[1], 2)))
 
-            if (r2[0] is not None):
-                moves.append((r2[0], round(r2[1], 2)))
+            # if (r2[0] is not None):
+            #     moves.append((r2[0], round(r2[1], 2)))
 
             if (random_time):
                 moves = [moves.pop()]
 
             best_move = moves
-            print(best_move)
             if not random_time:
-                print("m2 ", moves[0][1], " mcts ", moves[1][1], " m4 ", moves[2][1])
+                print("m2 ", moves[0][1], " mcts ", moves[1][1])
             else:
                 print(cut_of_time, best_move[0][0], best_move[0][1])
             board.push(Move.from_uci(best_move[1][0]))

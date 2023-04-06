@@ -6,7 +6,8 @@ from chess import Board, Move
 # from copy import deepcopy
 from time import time
 from abc import ABC, abstractmethod
-
+import os
+import psutil
 sys.setrecursionlimit(15000)
 try:
     from board import turn_side, eval_board_state, game_over, game_score, sorted_moves
@@ -137,7 +138,7 @@ class MonteCarlo:
         original_board = node.board.copy()
         all_moves = [node.board.san(i) for i in list(node.board.legal_moves)]
         map_state_move = dict()
-
+       
         for i in all_moves:
             tmp_state = Board(node.board.fen())
             tmp_state.push_san(i)
@@ -229,6 +230,7 @@ class MiniMaxPlayer(Player):
             return [minScore, bestMove]
 
     def move(self, board: Board, cut_of_time: int):
+       
         t1 = time()
         copy_board = board.copy()
         best_move = self._minimax(copy_board, self.player, self.depth, t1, cut_of_time)
