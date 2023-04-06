@@ -7,37 +7,54 @@ from chess_game.player import MiniMaxPlayer, HumanPlayer, Node, MonteCarlo
 from chess_game.board import game_over, check_tie, check_win, eval_board_state
 from chess_game.config import BOARD_SCORES
 from time import perf_counter
+from random import randint, choice as choicefn
 
-
+random_time = False
 def main():
     # Use a breakpoint in the code line below to debug your script.
     board = Board()
     choice = True;
-
+    start = True
     while(1):
-        print(board)
         if(choice):
-            print("Input Move")
-            h = HumanPlayer(False)
-            move = h.move(board)
+            move = None
+            if(start):
+                move = choicefn(("e2e4", "d2d4", "c2c4", "g1f3"))
+                start = False
+            else:
+                bot1 = MiniMaxPlayer(False, 2)
+                move = bot1.move(board, -1)[0]
+            #print("Player Move", move)
             board.push(Move.from_uci(move))
         else:
             pool = Pool(3)
-            print("Bot move")
+            #print("Bot move")
+            cut_of_time = randint(0, 30) if random_time else -1
             bot1 = MiniMaxPlayer(False, 2)
             bot2 = MiniMaxPlayer(False, 4)
-            time1 = perf_counter()
-            r1=pool.apply(bot1.move, args=(board,))
-            print("Time for Depth 2 is ", perf_counter() - time1)
-            time1 = perf_counter()
-            r2=pool.apply(bot2.move, args=(board,))
-            r3 = pool.apply(mcts_main, args=(board,))
-            print("Time for Depth 4 is ", perf_counter() - time1)
-            print(r1)
-            print(r2)
-            print(r3)
-            best_move = r1
-            board.push(Move.from_uci(best_move))
+            r1=pool.apply(bot1.move, args=(board, cut_of_time))
+            r2=pool.apply(bot2.move, args=(board, cut_of_time))
+            r3 = pool.apply(mcts_main, args=(board, cut_of_time))
+            moves = []
+            if (r1[0] is not None):
+                moves.append((r1[0], round(r1[1], 2)))
+
+            if (r3[0] is not None):
+                moves.append((r3[0], round(r3[1], 2)))
+
+            if (r2[0] is not None):
+                moves.append((r2[0], round(r2[1], 2)))
+
+            if (random_time):
+                moves = [moves.pop()]
+
+            best_move = moves
+            print(best_move)
+            if not random_time:
+                print("m2 ", moves[0][1], " mcts ", moves[1][1], " m4 ", moves[2][1])
+            else:
+                print(cut_of_time, best_move[0][0], best_move[0][1])
+            board.push(Move.from_uci(best_move[1][0]))
             pool.close()
         choice = not choice
         if game_over(board, claim_draw=True):
@@ -49,12 +66,12 @@ def main():
         result = int(check_win(board, True))
     print(result)
 
-def mcts_main(board: Board) -> None:
+def mcts_main(board: Board, cut_of_time: int) -> None:
     temp = board.copy()
     root = Node()
     root.board = temp
     child = MonteCarlo()
-    ans = child.main(root, 10)
+    ans = child.main(root, cut_of_time, 5)
     return ans
 
     

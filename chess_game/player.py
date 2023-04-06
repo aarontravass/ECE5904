@@ -167,7 +167,7 @@ class MonteCarlo:
             if (tmp < mn):
                 mn = tmp
                 selected_move = map_state_move[i]
-        print("MCTS", selected_move, time() - t1)
+        #print("MCTS", selected_move, time() - t1)
         return (original_board.parse_san(selected_move).uci(), time() - t1)
 
 
@@ -234,7 +234,7 @@ class MiniMaxPlayer(Player):
         best_move = self._minimax(copy_board, self.player, self.depth, t1, cut_of_time)
         if(best_move == []):
             return (None, None)
-        print(best_move)
+        #print(best_move)
         return (best_move[1].uci(), time() - t1)
 
 
