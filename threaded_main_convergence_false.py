@@ -17,7 +17,21 @@ def main():
     choice = True;
     start = True
     global found
-    print(board.piece_at(parse_square('a2')))
+    
+    i=0
+    d= [
+        [('c7c5', 0.03), ('f7f5', 8.73)],
+        [('a7a6', 0.04), ('f5f4', 8.92)],
+        [('d7d5', 0.05), ('a7a5', 7.25)],
+        [('c8b7', 0.06), ('a8a7', 7.31)],
+        [('d7d6', 0.06), ('h7h5', 6.64)],
+        [('d8c8', 0.06), ('a5a4', 5.31)],
+        [('a7c7', 0.08), ('a7a6', 5.71)],
+        [('d8c8', 0.09), ('g7g6', 7.24)],
+        [('d8b8', 0.1), ('a6d6', 5.98)],
+        [('d8c8', 0.09), ('g8h6', 5.38)],
+        [('e8d8', 0.01), ('e8d8', 5.84)]
+    ]
     while(1):
         if(choice):
             move = None
@@ -25,45 +39,32 @@ def main():
                 move = choicefn(("e2e4", "d2d4", "c2c4", "g1f3"))
                 start = False
             else:
-                bot1 = MiniMaxPlayer(False, 2)
+                bot1 = MiniMaxPlayer(True, 2)
                 move = bot1.move(board, -1)[0]
-            print("Player Move", move)
+            # print("Player Move", move)
             board.push(Move.from_uci(move))
         else:
-            pool = Pool(3)
-            #print("Bot move")
-            cut_of_time = randint(0, 30) if random_time else -1
-            bot1 = MiniMaxPlayer(False, 2)
-            bot2 = MiniMaxPlayer(False, 4)
-            r1=pool.apply(bot1.move, args=(board, cut_of_time))
-            #r2=pool.apply(bot2.move, args=(board, cut_of_time))
-            r3 = pool.apply(mcts_main, args=(board, cut_of_time))
-            moves = []
-            if (r1[0] is not None):
-                moves.append((r1[0], round(r1[1], 2)))
-
-            if (r3[0] is not None):
-                moves.append((r3[0], round(r3[1], 2)))
+            if(i>len(d)-1):
+                break
 
             # if (r2[0] is not None):
             #     moves.append((r2[0], round(r2[1], 2)))
 
-            if (random_time):
-                moves = [moves.pop()]
-
+            
+            moves = d[i]
+            i+=1
             best_move = moves
            
-            print("bot moves", moves)
-            if not random_time:
-                 if moves[0][0]==moves[1][0]:
-                    if(board.piece_at(parse_square(moves[0][0][0:2]))=='K' or board.piece_at(parse_square(moves[0][0][0:2]))=='k'):
-                        print(board.fen())
-                        found = True
-                        break
-            else:
-                print(cut_of_time, best_move[0][0], best_move[0][1])
+            # print("bot moves", moves)
+            # print(board.move_stack)
+            if board.piece_at(parse_square(moves[0][0][0:2]))=='k' or board.piece_at(parse_square(moves[0][0][0:2]))=='K':
+                
+                print(board.fen())
+                print(board.move_stack)
+                return True
+           
             board.push(Move.from_uci(best_move[1][0]))
-            pool.close()
+           
         if game_over(board, claim_draw=True):
             break
         choice = not choice
@@ -72,7 +73,8 @@ def main():
         result = -1
     else:
         result = int(check_win(board, choice))
-    print(board)
+    #print(board)
+    return False
 
 def mcts_main(board: Board, cut_of_time: int) -> None:
     temp = board.copy()
@@ -91,6 +93,10 @@ if __name__ == '__main__':
     #     main()
         #print("completed itr ", i+1)
     while(not found):
-        main()
+        try:
+            if main():
+                break
+        except AssertionError:
+            continue
     
 
