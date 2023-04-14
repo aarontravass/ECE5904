@@ -2,7 +2,7 @@ import binascii
 import os
 import random
 
-from chess import Board, Move, BLACK
+from chess import Board, Move, BLACK, WHITE
 import src.database.handler as mongo
 from chess_game.board import game_over
 from chess_game.player import HumanPlayer, Node, MonteCarlo, MiniMaxPlayer
@@ -21,7 +21,7 @@ def init(random_time: bool) -> dict:
 
     client_id = binascii.b2a_hex(os.urandom(15)).hex()
     board = Board()
-    board.turn = BLACK
+    board.turn = WHITE
     data = {
         'users_turn': True,
         'fen': str(board.fen()),

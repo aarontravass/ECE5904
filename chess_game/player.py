@@ -1,5 +1,6 @@
 import logging as log
 import sys
+import os
 from random import choice
 from math import inf, log, sqrt, e
 from chess import Board, Move
@@ -132,6 +133,8 @@ class MonteCarlo:
 
     def main(self, node: Node, cut_of_time: int, iterations: int):
         t1 = time()
+        #os.nice(-15)
+        # set a low nice value to give it high priority
         original_board = node.board.copy()
         all_moves = [node.board.san(i) for i in list(node.board.legal_moves)]
         map_state_move = dict()
@@ -227,7 +230,8 @@ class MiniMaxPlayer(Player):
             return [minScore, bestMove]
 
     def move(self, board: Board, cut_of_time: int):
-       
+        # os.nice(-15)
+        # set a low nice value to give it high priority
         t1 = time()
         copy_board = board.copy()
         best_move = self._minimax(copy_board, self.player, self.depth, t1, cut_of_time)
