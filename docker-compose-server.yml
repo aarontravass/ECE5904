@@ -16,11 +16,3 @@ services:
       - PORT=5000
     depends_on:
       - mongo
-  webapp:
-    image: outerspace1920/ece5904-fe:0.1
-    ports:
-      - '80:80'
-    environment:
-      - PORT=80
-    depends_on:
-      - server
