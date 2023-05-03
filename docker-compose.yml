@@ -1,0 +1,17 @@
+version: "3"
+services:
+  mongo:
+    image: mongo:latest
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+  server:
+    build: ./Dockerfile
+    ports: 
+      - '5000:5000'
+    environment:
+      - MONGODB_URI=mongodb://admin:admin@mongo/public?retryWrites=true&w=majority
+      - PORT=5000
+    depends_on:
+      - mongo
