@@ -7,3 +7,7 @@ If you only want the server, run `docker-compose -f docker-compose-server.yml up
 
 There is a prebuilt frontend image available at https://hub.docker.com/r/outerspace1920/ece5904-fe/
 
+Credits:
+Code for Minimax and Monte Carlo were adapted from
+1. Minimax - https://github.com/Howuhh/chess_minimax
+2. Monte Carlo Tree Search - https://github.com/Ish2K/Chess-Bot-AI-Algorithms
