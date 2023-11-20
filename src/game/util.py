@@ -1,12 +1,13 @@
 import binascii
 import os
-import random
 
 from chess import Board, Move
 import src.database.handler as mongo
 from chess_game.board import game_over
 from chess_game.player import HumanPlayer, Node, MonteCarlo, MiniMaxPlayer
 from multiprocessing import Pool, cpu_count
+import secrets
+
 instanceDB = mongo.getDb().get_database('public')
 game = instanceDB.get_collection('game')
 
@@ -128,7 +129,7 @@ def callBotMove(client_id: str) -> dict:
         }
         return response
     pool = Pool(min(3, cpu_count()))
-    cut_of_time = random.randint(0, 60) if random_time else -1
+    cut_of_time = secrets.SystemRandom().randint(0, 60) if random_time else -1
     print("Bot move")
     bot1 = MiniMaxPlayer(False, 2)
     bot2 = MiniMaxPlayer(False, 4)

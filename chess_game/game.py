@@ -4,7 +4,7 @@ from chess import Board
 
 from itertools import count
 from time import sleep, time
-from random import choice
+import secrets
 
 try:
     from board import game_over, check_tie, check_win, eval_board_state
@@ -69,7 +69,7 @@ class Game:
         return result_stat
 
     def start_game(self, p1_cls, p2_cls, visual=False, pause=1):
-        goes_first = choice([True, False])
+        goes_first = secrets.SystemRandom().choice([True, False])
         
         if goes_first:
             result = self._game(p1_cls(True), p2_cls(False), visual, pause)

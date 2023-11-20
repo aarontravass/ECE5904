@@ -7,7 +7,8 @@ from chess_game.player import MiniMaxPlayer, HumanPlayer, Node, MonteCarlo
 from chess_game.board import game_over, check_tie, check_win, eval_board_state
 from chess_game.config import BOARD_SCORES
 from time import perf_counter
-from random import randint, choice as choicefn
+from random import randint
+import secrets
 
 found = False
 random_time = False
@@ -36,7 +37,7 @@ def main():
         if(choice):
             move = None
             if(start):
-                move = choicefn(("e2e4", "d2d4", "c2c4", "g1f3"))
+                move = secrets.SystemRandom().choicefn(("e2e4", "d2d4", "c2c4", "g1f3"))
                 start = False
             else:
                 bot1 = MiniMaxPlayer(True, 2)
