@@ -1,11 +1,12 @@
 import logging as log
 import sys
 import os
-from random import choice
 from math import inf, log, sqrt, e
 from chess import Board, Move
 from time import time
 from abc import ABC, abstractmethod
+import secrets
+
 sys.setrecursionlimit(15000)
 try:
     from board import turn_side, eval_board_state, game_over, game_score, sorted_moves
@@ -119,7 +120,7 @@ class MonteCarlo:
             child.parent = node
             node.children.add(child)
         # print(node.children)
-        rnd_state = choice(list(node.children))
+        rnd_state = secrets.SystemRandom().choice(list(node.children))
 
         return self.rollout(rnd_state)
 

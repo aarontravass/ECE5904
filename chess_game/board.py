@@ -1,9 +1,8 @@
 import chess
 
 from chess import Board
-
-from random import random
 from typing import List
+import secrets
 
 try:
     from config import BOARD_SCORES, END_SCORES
@@ -69,7 +68,7 @@ def check_tie(board: Board, claim_draw: bool = False) -> bool:
 
 
 def eval_board_state(board, player: bool, board_scores_policy: dict) -> float:
-    total_score = random()
+    total_score = secrets.SystemRandom().random()
     # / 100
 
     for piece, score in board_scores_policy.items():
