@@ -235,8 +235,7 @@ class MiniMaxPlayer(Player):
         # set a low nice value to give it high priority
         t1 = time()
         copy_board = board.copy()
-        best_move = self._minimax(copy_board, self.player, self.depth, t1, cut_of_time)
-        if(best_move == []):
+        if((best_move := self._minimax(copy_board, self.player, self.depth, t1, cut_of_time)) == []):
             return (None, None)
         #print(best_move)
         return (best_move[1].uci(), time() - t1)
