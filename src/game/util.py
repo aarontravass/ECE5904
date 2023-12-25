@@ -43,8 +43,7 @@ def init(random_time: bool) -> dict:
 
 
 def makeMove(client_id: str, move: str) -> dict:
-    game_res = game.find_one({'client_id': client_id})
-    if game_res is None:
+    if (game_res := game.find_one({'client_id': client_id})) is None:
         response = {
             'statusCode': 404,
             'status': False,
@@ -108,8 +107,7 @@ def makeMove(client_id: str, move: str) -> dict:
 
 
 def callBotMove(client_id: str) -> dict:
-    game_res = game.find_one({'client_id': client_id})
-    if game_res is None:
+    if (game_res := game.find_one({'client_id': client_id})) is None:
         response = {
             'statusCode': 404,
             'status': False,
@@ -186,8 +184,7 @@ def callBotMove(client_id: str) -> dict:
 
 
 def chooseBotMove(client_id: str, move: str) -> dict:
-    game_res = game.find_one({'client_id': client_id})
-    if game_res is None:
+    if (game_res := game.find_one({'client_id': client_id})) is None:
         response = {
             'statusCode': 404,
             'status': False,

@@ -69,9 +69,8 @@ class Game:
         return result_stat
 
     def start_game(self, p1_cls, p2_cls, visual=False, pause=1):
-        goes_first = secrets.SystemRandom().choice([True, False])
         
-        if goes_first:
+        if goes_first := secrets.SystemRandom().choice([True, False]):
             result = self._game(p1_cls(True), p2_cls(False), visual, pause)
         else:
             result = self._game(p2_cls(True), p1_cls(False), visual, pause)
